@@ -1,25 +1,9 @@
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+
+from rag_service.routers import analyze_router, health_router
 
 app = FastAPI()
 
-class TextRequest(BaseModel):
-    text: str = Field(min_length=3)
-    
-class TextResponse(BaseModel):
-    result: str
-    num_chars: int
-    
+app.include_router(analyze_router)
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
-@app.get("/version")
-def version():
-    return {"version": "0.1.0"}
-
-@app.post("/analyze", response_model=TextResponse)
-def analyze(request: TextRequest):
-    return TextResponse(result=request.text, num_chars=len(request.text))
+app.include_router(health_router)
