@@ -1,13 +1,16 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TextRequest(BaseModel):
-    text: str = Field(min_length=3)
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    
+    text: str = Field(min_length=1)
 
 
 class TextResponse(BaseModel):
+    
     result: str
     num_chars: int
 
