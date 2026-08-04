@@ -1,8 +1,3 @@
-from urllib import response
-
-from tests.conftest import client
-
-
 def test_analyze_is_valid_text_returns_200(client):
     response = client.post("/analyze", json={"text": "I love Donuts :)"})
     assert response.status_code == 200
