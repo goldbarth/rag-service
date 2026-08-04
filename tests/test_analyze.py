@@ -1,3 +1,8 @@
+from urllib import response
+
+from tests.conftest import client
+
+
 def test_analyze_is_valid_text_returns_200(client):
     response = client.post("/analyze", json={"text": "I love Donuts :)"})
     assert response.status_code == 200
@@ -38,3 +43,11 @@ def test_analyze_rejects_misspelled_text_key_returns_422(client):
     assert response.status_code == 422
     assert {"type": "missing", "loc": ["body", "text"]} in errors
     assert {"type": "extra_forbidden", "loc": ["body", "txet"]} in errors
+
+
+def test_analyze_rejects_invalid_input_type_422(client):
+    response = client.post("/analyze", json={"text": 123})
+    detail = response.json()["detail"][0]
+    assert response.status_code == 422
+    assert detail["type"] == "string_type"
+    assert detail["loc"] == ["body", "text"]
