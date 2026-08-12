@@ -14,4 +14,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    # openai_api_key is read from the environment, not passed in.
+    return Settings()  # pyright: ignore[reportCallIssue]

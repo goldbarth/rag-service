@@ -16,6 +16,7 @@ dependencies = [
 dev = [
     "httpx2>=2.9.1",
     "mypy>=2.3.0",
+    "pyright>=1.1.411",
     "pytest>=9.1.1",
     "ruff>=0.16.0",
 ]
@@ -25,6 +26,11 @@ python_version = "3.14"
 strict = true
 plugins = ["pydantic.mypy"]
 files = ["src", "tests", "scripts"]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+include = ["src", "tests", "scripts"]
 
 [build-system]
 requires = ["hatchling"]
