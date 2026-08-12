@@ -3,8 +3,8 @@ import logging
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 
-from rag_service.llm import LlmError
-from rag_service.routers import analyze_router, health_router
+from rag_service.api.routers import analyze_router, health_router
+from rag_service.core.interfaces import LlmError
 
 logger = logging.getLogger(__name__)
 

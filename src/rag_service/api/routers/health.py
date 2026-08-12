@@ -2,7 +2,7 @@ from importlib.metadata import version as package_version
 
 from fastapi import APIRouter
 
-from rag_service.schemas import HealthResponse, VersionResponse
+from rag_service.schemas.responses import HealthResponse, VersionResponse
 
 router = APIRouter(tags=["health"])
 

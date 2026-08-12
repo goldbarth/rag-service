@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from rag_service.schemas import TextRequest, TextResponse
+from rag_service.schemas.requests import TextRequest
+from rag_service.schemas.responses import TextResponse
 
 router = APIRouter(tags=["analyze"])
 
