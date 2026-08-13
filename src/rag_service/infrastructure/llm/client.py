@@ -44,4 +44,11 @@ class OpenAiLlmClient:
                 f"Model {self._model_name} did not answer."
             ) from exc
 
-        return response.output_text
+        text = response.output_text
+
+        if not text.strip():
+            raise LlmUnavailableError(
+                f"The response for the {self._model_name} model contains no content."
+            )
+
+        return text
