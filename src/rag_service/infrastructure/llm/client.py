@@ -1,6 +1,15 @@
-from openai import OpenAI, OpenAIError
+from openai import (
+    APIConnectionError,
+    AuthenticationError,
+    BadRequestError,
+    NotFoundError,
+    OpenAI,
+    OpenAIError,
+    PermissionDeniedError,
+    RateLimitError,
+)
 
-from rag_service.core.interfaces import LlmError
+from rag_service.core.interfaces import LlmConfigurationError, LlmUnavailableError
 
 
 class OpenAiLlmClient:
@@ -17,7 +26,29 @@ class OpenAiLlmClient:
                 instructions=system_prompt,
                 input=user_message,
             )
+        except (
+            AuthenticationError,
+            PermissionDeniedError,
+            BadRequestError,
+            NotFoundError,
+        ) as exc:
+            raise LlmConfigurationError(
+                f"Request for model {self._model_name} was rejected."
+            ) from exc
+        except (RateLimitError, APIConnectionError) as exc:
+            raise LlmUnavailableError(
+                f"Model {self._model_name} is currently unavailable."
+            ) from exc
         except OpenAIError as exc:
-            raise LlmError(f"Model {self._model_name} did not answer.") from exc
+            raise LlmUnavailableError(
+                f"Model {self._model_name} did not answer."
+            ) from exc
 
-        return response.output_text
+        text = response.output_text
+
+        if not text.strip():
+            raise LlmUnavailableError(
+                f"The response for the {self._model_name} model contains no content."
+            )
+
+        return text
