@@ -3,7 +3,7 @@ from functools import lru_cache
 from openai import OpenAI, OpenAIError
 
 from rag_service.core.config import get_settings
-from rag_service.core.interfaces import LlmClient, LlmError
+from rag_service.core.interfaces import LlmClient, LlmConfigurationError
 from rag_service.infrastructure.llm.client import OpenAiLlmClient
 
 
@@ -17,6 +17,6 @@ def get_llm_client() -> LlmClient:
             timeout=settings.timeout,
         )
     except OpenAIError as exc:
-        raise LlmError("Could not create the OpenAI client.") from exc
+        raise LlmConfigurationError("Could not create the OpenAI client.") from exc
 
     return OpenAiLlmClient(client=client, model_name=settings.model_name)
