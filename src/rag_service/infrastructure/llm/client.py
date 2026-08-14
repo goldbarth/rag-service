@@ -7,24 +7,28 @@ from openai import (
     OpenAIError,
     PermissionDeniedError,
     RateLimitError,
+    omit,
 )
 
+from rag_service.core.config import LlmConfig
 from rag_service.core.interfaces import LlmConfigurationError, LlmUnavailableError
 
 
 class OpenAiLlmClient:
     """LlmClient adapter for the OpenAI Responses API."""
 
-    def __init__(self, client: OpenAI, model_name: str) -> None:
+    def __init__(self, client: OpenAI) -> None:
         self._client = client
-        self._model_name = model_name
 
-    def complete(self, system_prompt: str, user_message: str) -> str:
+    def complete(self, system_prompt: str, user_message: str, config: LlmConfig) -> str:
         try:
             response = self._client.responses.create(
-                model=self._model_name,
+                model=config.model_name,
                 instructions=system_prompt,
                 input=user_message,
+                temperature=config.temperature
+                if config.temperature is not None
+                else omit,
             )
         except (
             AuthenticationError,
@@ -33,22 +37,22 @@ class OpenAiLlmClient:
             NotFoundError,
         ) as exc:
             raise LlmConfigurationError(
-                f"Request for model {self._model_name} was rejected."
+                f"Request for model {config.model_name} was rejected."
             ) from exc
         except (RateLimitError, APIConnectionError) as exc:
             raise LlmUnavailableError(
-                f"Model {self._model_name} is currently unavailable."
+                f"Model {config.model_name} is currently unavailable."
             ) from exc
         except OpenAIError as exc:
             raise LlmUnavailableError(
-                f"Model {self._model_name} did not answer."
+                f"Model {config.model_name} did not answer."
             ) from exc
 
         text = response.output_text
 
         if not text.strip():
             raise LlmUnavailableError(
-                f"The response for the {self._model_name} model contains no content."
+                f"The response for the {config.model_name} model contains no content."
             )
 
         return text

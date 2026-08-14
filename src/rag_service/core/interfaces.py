@@ -1,5 +1,7 @@
 from typing import Protocol
 
+from rag_service.core.config import LlmConfig
+
 
 class LlmError(Exception):
     """Base llm error. Raised when an exception occurred,
@@ -17,6 +19,6 @@ class LlmUnavailableError(LlmError):
 class LlmClient(Protocol):
     """Port for text completion. Implemented by adapters in infrastructure."""
 
-    def complete(self, system_prompt: str, user_message: str) -> str:
+    def complete(self, system_prompt: str, user_message: str, config: LlmConfig) -> str:
         """Return the model's answer or raise LlmError."""
         ...

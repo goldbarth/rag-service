@@ -19,4 +19,4 @@ def get_llm_client() -> LlmClient:
     except OpenAIError as exc:
         raise LlmConfigurationError("Could not create the OpenAI client.") from exc
 
-    return OpenAiLlmClient(client=client, model_name=settings.model_name)
+    return OpenAiLlmClient(client=client)
