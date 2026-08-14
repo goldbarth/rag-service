@@ -14,8 +14,10 @@ from openai import (
     OpenAIError,
     PermissionDeniedError,
     RateLimitError,
+    omit,
 )
 
+from rag_service.core.config import LlmConfig
 from rag_service.core.interfaces import LlmConfigurationError, LlmUnavailableError
 from rag_service.infrastructure.llm.client import OpenAiLlmClient
 
@@ -47,7 +49,6 @@ class FakeOpenAI:
 def make_client(responses: FakeResponses) -> OpenAiLlmClient:
     return OpenAiLlmClient(
         client=cast(OpenAI, cast(object, FakeOpenAI(responses=responses))),
-        model_name="test-model",
     )
 
 
@@ -67,6 +68,7 @@ def test_complete_returns_response_text() -> None:
     result = client.complete(
         system_prompt="You are helpful.",
         user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", temperature=0.2),
     )
 
     assert result == "Hello from the model."
@@ -75,6 +77,28 @@ def test_complete_returns_response_text() -> None:
             "model": "test-model",
             "instructions": "You are helpful.",
             "input": "Say hello.",
+            "temperature": 0.2,
+        }
+    ]
+
+
+def test_complete_uses_omit_for_temperature_when_not_configured() -> None:
+    responses = FakeResponses(result=FakeResponse(output_text="Hello from the model."))
+    client = make_client(responses)
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="reasoning-model", temperature=None),
+    )
+
+    assert result == "Hello from the model."
+    assert responses.calls == [
+        {
+            "model": "reasoning-model",
+            "instructions": "You are helpful.",
+            "input": "Say hello.",
+            "temperature": omit,
         }
     ]
 
@@ -95,7 +119,11 @@ def test_complete_maps_rejected_requests_to_configuration_error(
     client = make_client(FakeResponses(error=upstream_error))
 
     with pytest.raises(LlmConfigurationError) as exc_info:
-        client.complete(system_prompt="You are helpful.", user_message="Say hello.")
+        client.complete(
+            system_prompt="You are helpful.",
+            user_message="Say hello.",
+            config=LlmConfig(model_name="test-model", temperature=0.2),
+        )
 
     assert exc_info.value.__cause__ is upstream_error
 
@@ -105,7 +133,11 @@ def test_complete_maps_rate_limit_to_unavailable_error() -> None:
     client = make_client(FakeResponses(error=upstream_error))
 
     with pytest.raises(LlmUnavailableError) as exc_info:
-        client.complete(system_prompt="You are helpful.", user_message="Say hello.")
+        client.complete(
+            system_prompt="You are helpful.",
+            user_message="Say hello.",
+            config=LlmConfig(model_name="test-model", temperature=0.2),
+        )
 
     assert exc_info.value.__cause__ is upstream_error
 
@@ -120,7 +152,11 @@ def test_complete_maps_connection_error_to_unavailable_error(
     client = make_client(FakeResponses(error=upstream_error))
 
     with pytest.raises(LlmUnavailableError) as exc_info:
-        client.complete(system_prompt="You are helpful.", user_message="Say hello.")
+        client.complete(
+            system_prompt="You are helpful.",
+            user_message="Say hello.",
+            config=LlmConfig(model_name="test-model", temperature=0.2),
+        )
 
     assert exc_info.value.__cause__ is upstream_error
 
@@ -130,7 +166,11 @@ def test_complete_maps_unknown_openai_error_to_unavailable_error() -> None:
     client = make_client(FakeResponses(error=upstream_error))
 
     with pytest.raises(LlmUnavailableError) as exc_info:
-        client.complete(system_prompt="You are helpful.", user_message="Say hello.")
+        client.complete(
+            system_prompt="You are helpful.",
+            user_message="Say hello.",
+            config=LlmConfig(model_name="test-model", temperature=0.2),
+        )
 
     assert exc_info.value.__cause__ is upstream_error
 
@@ -140,4 +180,8 @@ def test_complete_rejects_empty_response(output_text: str) -> None:
     client = make_client(FakeResponses(result=FakeResponse(output_text=output_text)))
 
     with pytest.raises(LlmUnavailableError):
-        client.complete(system_prompt="You are helpful.", user_message="Say hello.")
+        client.complete(
+            system_prompt="You are helpful.",
+            user_message="Say hello.",
+            config=LlmConfig(model_name="test-model", temperature=0.2),
+        )
