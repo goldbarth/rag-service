@@ -2,11 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from rag_service.api.dependencies import get_llm_client, get_llm_config
-from rag_service.core.config import LlmConfig
-from rag_service.core.interfaces import LlmClient
-from rag_service.schemas.requests import TextRequest
-from rag_service.schemas.responses import TextResponse
+from harness.api.dependencies import get_llm_client, get_llm_config
+from harness.core.config import LlmConfig
+from harness.core.interfaces import LlmClient
+from harness.schemas.requests import TextRequest
+from harness.schemas.responses import TextResponse
 
 router = APIRouter(tags=["analyze"])
 

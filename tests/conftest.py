@@ -3,9 +3,9 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from rag_service.api.dependencies import get_llm_client, get_llm_config
-from rag_service.core.config import LlmConfig
-from rag_service.main import app
+from harness.api.dependencies import get_llm_client, get_llm_config
+from harness.core.config import LlmConfig
+from harness.main import app
 
 
 class FakeLlmClient:

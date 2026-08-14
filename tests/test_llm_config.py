@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from rag_service.core.config import LlmConfig
+from harness.core.config import LlmConfig
 
 
 @pytest.mark.parametrize("temperature", [-0.1, 2.1])

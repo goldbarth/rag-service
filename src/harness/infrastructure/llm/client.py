@@ -10,8 +10,8 @@ from openai import (
     omit,
 )
 
-from rag_service.core.config import LlmConfig
-from rag_service.core.interfaces import LlmConfigurationError, LlmUnavailableError
+from harness.core.config import LlmConfig
+from harness.core.interfaces import LlmConfigurationError, LlmUnavailableError
 
 
 class OpenAiLlmClient:

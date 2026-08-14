@@ -3,14 +3,14 @@ from collections.abc import Callable, Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from rag_service.api.dependencies import get_llm_client
-from rag_service.core.config import LlmConfig
-from rag_service.core.interfaces import (
+from harness.api.dependencies import get_llm_client
+from harness.core.config import LlmConfig
+from harness.core.interfaces import (
     LlmConfigurationError,
     LlmError,
     LlmUnavailableError,
 )
-from rag_service.main import app
+from harness.main import app
 
 
 class RaisingLlmClient:
