@@ -17,9 +17,9 @@ from openai import (
     omit,
 )
 
-from rag_service.core.config import LlmConfig
-from rag_service.core.interfaces import LlmConfigurationError, LlmUnavailableError
-from rag_service.infrastructure.llm.client import OpenAiLlmClient
+from harness.core.config import LlmConfig
+from harness.core.interfaces import LlmConfigurationError, LlmUnavailableError
+from harness.infrastructure.llm.client import OpenAiLlmClient
 
 
 @dataclass

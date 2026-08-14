@@ -2,7 +2,7 @@ from importlib.metadata import version as package_version
 
 from fastapi import APIRouter
 
-from rag_service.schemas.responses import HealthResponse, VersionResponse
+from harness.schemas.responses import HealthResponse, VersionResponse
 
 router = APIRouter(tags=["health"])
 
@@ -14,4 +14,4 @@ def health() -> HealthResponse:
 
 @router.get("/version")
 def version() -> VersionResponse:
-    return VersionResponse(version=package_version("rag-service"))
+    return VersionResponse(version=package_version("retrieval-regression-harness"))

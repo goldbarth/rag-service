@@ -2,9 +2,9 @@ from functools import lru_cache
 
 from openai import OpenAI, OpenAIError
 
-from rag_service.core.config import LlmConfig, get_settings
-from rag_service.core.interfaces import LlmClient, LlmConfigurationError
-from rag_service.infrastructure.llm.client import OpenAiLlmClient
+from harness.core.config import LlmConfig, get_settings
+from harness.core.interfaces import LlmClient, LlmConfigurationError
+from harness.infrastructure.llm.client import OpenAiLlmClient
 
 
 @lru_cache

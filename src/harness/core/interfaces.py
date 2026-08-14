@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from rag_service.core.config import LlmConfig
+from harness.core.config import LlmConfig
 
 
 class LlmError(Exception):

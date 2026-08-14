@@ -1,5 +1,5 @@
 [project]
-name = "rag-service"
+name = "retrieval-regression-harness"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -43,3 +43,7 @@ include = ["src", "tests", "scripts"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# Distribution name and import name differ, so hatchling cannot infer the package.
+[tool.hatch.build.targets.wheel]
+packages = ["src/harness"]
