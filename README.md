@@ -22,8 +22,6 @@ Each run is stored together with the configuration it ran under and with the chu
 Running the same gold questions against two configurations then produces a diff, question by question.
 The chunk list is the part I work with: it shows which passage an answer was assembled from, so a change has a traceable place to start.
 
----
-
 ## Why this exists
 
 Retrieval quality is the first thing I look at when a RAG answer goes wrong, and it is the thing that is hardest to see afterwards.
@@ -34,8 +32,6 @@ That works for obvious breakage and stops working at the point where it matters,
 
 This harness keeps enough of each run to replace that impression with a diff.
 The [RAGGY paper](https://arxiv.org/abs/2504.13587) describes the same working pattern from the other direction: developers debugging RAG pipelines check retrieval first, want to see which chunks were and were not returned, and compare strategies against each other.
-
----
 
 ## Status
 
@@ -53,8 +49,6 @@ What exists is the layer underneath it, the service skeleton and the raw LLM cal
 Retrieval, the schema and the first diff are phase 3.
 The [roadmap](#roadmap) says what lands when.
 
----
-
 ## Why there is nothing to assert
 
 A unit test names an input and the output it expects.
@@ -67,8 +61,6 @@ If a question was answered from the section I expected before a configuration ch
 Reading that direction requires the earlier run to still be around in enough detail to compare against.
 The retrieved passages, their scores and their ranks usually do not outlive the request they were made for.
 Here they are written down, and the diff reads them later.
-
----
 
 ## Approach
 
@@ -102,8 +94,6 @@ Four dimensions, deliberately, and one corpus:
 
 The provider is a configuration value here, not an architectural decision.
 The OpenAI client speaks to any OpenAI-compatible endpoint through a different `base_url`, so a fallback to Groq changes a setting rather than a layer.
-
----
 
 ## Design decisions
 
@@ -144,8 +134,6 @@ None of those limits bind at this size, and the decision is reversible, because 
 > Stichworte: Die Pipeline entsteht zuerst von Hand, LangChain kommt danach als zusaetzliche Konfigurationsdimension dazu. Damit wird die Antwort auf "was nimmt das Framework ab" ein Diff aus zwei Laeufen statt einer Behauptung. Framework-Wahl selbst ist strategisch begruendet, nicht fachlich.
 
 -->
-
----
 
 ## Planned
 
@@ -189,8 +177,6 @@ Set aside deliberately:
 - **Multi-agent orchestration.** A single flow holding state across two or three tools covers the pattern this project needs.
 - **A second corpus.** The comparison runs between configurations. A second corpus adds a variable without adding an answer.
 
----
-
 ## Roadmap
 
 Each phase leaves something that runs.
@@ -217,6 +203,8 @@ LangChain enters as an additional configuration dimension rather than as a rewri
 ragas as a scorer writing into the existing `scores` table, LangSmith tracing for cost per run, token budgets and rate limiting, and deployment.
 
 ---
+
+> discrimen (Latin) - "a dividing line, a decisive point". Which is exactly what a regression check looks for between two runs.
 
 ## License
 
