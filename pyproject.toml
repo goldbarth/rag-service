@@ -39,6 +39,8 @@ files = ["src", "tests", "scripts"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"
 include = ["src", "tests", "scripts"]
+venvPath = "."
+venv = ".venv"
 
 [build-system]
 requires = ["hatchling"]
