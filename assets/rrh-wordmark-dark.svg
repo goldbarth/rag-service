@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590 300" width="590" height="300" role="img" aria-label="retrieval-regression-harness"><style><![CDATA[@font-face{font-family:"IBM Plex Mono";font-weight:500;src:url(data:font/woff2;base64,) format("woff2");}]]></style>
+<title>rrh — retrieval regression harness (dark)</title>
+<g>
+<rect x="48" y="88" width="127" height="10" rx="4" fill="#14807A"/>
+<rect x="48" y="101" width="121" height="10" rx="4" fill="#2DD4BF"/>
+<rect x="48" y="113" width="90" height="10" rx="4" fill="#14807A"/>
+<rect x="48" y="126" width="94" height="10" rx="4" fill="#2DD4BF"/>
+<rect x="48" y="138" width="106" height="10" rx="4" fill="#14807A"/>
+<rect x="48" y="151" width="55" height="10" rx="4" fill="#E0A34B"/>
+<rect x="48" y="164" width="75" height="10" rx="4" fill="#14807A"/>
+<rect x="48" y="177" width="79" height="10" rx="4" fill="#2DD4BF"/>
+<rect x="48" y="189" width="115" height="10" rx="4" fill="#14807A"/>
+<rect x="48" y="202" width="113" height="10" rx="4" fill="#2DD4BF"/>
+</g>
+<text x="247" y="199" font-family="'IBM Plex Mono', ui-monospace, monospace" font-weight="500" font-size="141" letter-spacing="-3" fill="#FAF6F0">rrh</text>
+<circle cx="529" cy="186" r="13" fill="#E0A34B"/>
+</svg>
