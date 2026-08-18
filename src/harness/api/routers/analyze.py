@@ -25,4 +25,4 @@ def analyze(
         config=llm_config,
     )
 
-    return TextResponse(result=result, num_chars=len(result))
+    return TextResponse(result=result.text, num_chars=len(result.text))

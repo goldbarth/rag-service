@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 class LlmConfig(BaseModel):
     model_name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
     temperature: float | None = Field(default=None, ge=0.0, le=2.0)
+    max_output_tokens: int | None = Field(default=None, gt=0)
 
 
 @lru_cache

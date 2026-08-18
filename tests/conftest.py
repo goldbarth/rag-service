@@ -5,12 +5,15 @@ from fastapi.testclient import TestClient
 
 from harness.api.dependencies import get_llm_client, get_llm_config
 from harness.core.config import LlmConfig
+from harness.core.interfaces import LlmCompletion
 from harness.main import app
 
 
 class FakeLlmClient:
-    def complete(self, system_prompt: str, user_message: str, config: LlmConfig) -> str:
-        return f"Analyzed: {user_message}"
+    def complete(
+        self, system_prompt: str, user_message: str, config: LlmConfig
+    ) -> LlmCompletion:
+        return LlmCompletion(f"Analyzed: {user_message}")
 
 
 @pytest.fixture

@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 from harness.api.dependencies import get_llm_client, get_llm_config
 from harness.core.config import LlmConfig
+from harness.core.interfaces import LlmCompletion
 from harness.main import app
 
 
@@ -68,7 +69,9 @@ class RecordingLlmClient:
     def __init__(self) -> None:
         self.calls: list[RecordedLlmCall] = []
 
-    def complete(self, system_prompt: str, user_message: str, config: LlmConfig) -> str:
+    def complete(
+        self, system_prompt: str, user_message: str, config: LlmConfig
+    ) -> LlmCompletion:
         self.calls.append(
             RecordedLlmCall(
                 system_prompt=system_prompt,
@@ -76,7 +79,7 @@ class RecordingLlmClient:
                 config=config,
             )
         )
-        return "local fake answer"
+        return LlmCompletion("local fake answer")
 
 
 def test_analyze_passes_request_and_config_to_llm() -> None:

@@ -18,13 +18,58 @@ from openai import (
 )
 
 from harness.core.config import LlmConfig
-from harness.core.interfaces import LlmConfigurationError, LlmUnavailableError
+from harness.core.interfaces import (
+    LlmCompletion,
+    LlmConfigurationError,
+    LlmUnavailableError,
+    TokenUsage,
+)
 from harness.infrastructure.llm.client import OpenAiLlmClient
+
+
+@dataclass
+class FakeInputTokensDetails:
+    cached_tokens: int
+    cache_write_tokens: int
+
+
+@dataclass
+class FakeOutputTokensDetails:
+    reasoning_tokens: int
+
+
+@dataclass
+class FakeUsage:
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+    input_tokens_details: FakeInputTokensDetails
+    output_tokens_details: FakeOutputTokensDetails
+
+
+@dataclass
+class FakeIncompleteDetails:
+    reason: str | None
 
 
 @dataclass
 class FakeResponse:
     output_text: str
+    usage: FakeUsage | None = None
+    incomplete_details: FakeIncompleteDetails | None = None
+
+
+def make_usage() -> FakeUsage:
+    """Distinct numbers everywhere, so a swapped field cannot pass."""
+    return FakeUsage(
+        input_tokens=11,
+        output_tokens=22,
+        total_tokens=33,
+        input_tokens_details=FakeInputTokensDetails(
+            cached_tokens=44, cache_write_tokens=55
+        ),
+        output_tokens_details=FakeOutputTokensDetails(reasoning_tokens=66),
+    )
 
 
 @dataclass
@@ -71,13 +116,14 @@ def test_complete_returns_response_text() -> None:
         config=LlmConfig(model_name="test-model", temperature=0.2),
     )
 
-    assert result == "Hello from the model."
+    assert result == LlmCompletion(text="Hello from the model.")
     assert responses.calls == [
         {
             "model": "test-model",
             "instructions": "You are helpful.",
             "input": "Say hello.",
             "temperature": 0.2,
+            "max_output_tokens": omit,
         }
     ]
 
@@ -92,13 +138,14 @@ def test_complete_uses_omit_for_temperature_when_not_configured() -> None:
         config=LlmConfig(model_name="reasoning-model", temperature=None),
     )
 
-    assert result == "Hello from the model."
+    assert result == LlmCompletion(text="Hello from the model.")
     assert responses.calls == [
         {
             "model": "reasoning-model",
             "instructions": "You are helpful.",
             "input": "Say hello.",
             "temperature": omit,
+            "max_output_tokens": omit,
         }
     ]
 
@@ -185,3 +232,121 @@ def test_complete_rejects_empty_response(output_text: str) -> None:
             user_message="Say hello.",
             config=LlmConfig(model_name="test-model", temperature=0.2),
         )
+
+
+def test_complete_passes_full_usage_through() -> None:
+    client = make_client(
+        FakeResponses(
+            result=FakeResponse(output_text="Hello.", usage=make_usage()),
+        )
+    )
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", temperature=0.2),
+    )
+
+    assert result.usage == TokenUsage(
+        input_tokens=11,
+        output_tokens=22,
+        total_tokens=33,
+        cached_tokens=44,
+        cache_write_tokens=55,
+        reasoning_tokens=66,
+    )
+
+
+def test_complete_returns_no_usage_when_the_provider_omits_it() -> None:
+    client = make_client(
+        FakeResponses(result=FakeResponse(output_text="Hello.", usage=None))
+    )
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", temperature=0.2),
+    )
+
+    assert result.usage is None
+
+
+def test_complete_sends_max_output_tokens_when_configured() -> None:
+    responses = FakeResponses(result=FakeResponse(output_text="Hello."))
+    client = make_client(responses)
+
+    client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(
+            model_name="test-model", temperature=0.2, max_output_tokens=64
+        ),
+    )
+
+    assert responses.calls == [
+        {
+            "model": "test-model",
+            "instructions": "You are helpful.",
+            "input": "Say hello.",
+            "temperature": 0.2,
+            "max_output_tokens": 64,
+        }
+    ]
+
+
+@pytest.mark.parametrize("reason", ["max_output_tokens", "content_filter"])
+def test_complete_reports_a_truncated_answer_instead_of_hiding_it(reason: str) -> None:
+    client = make_client(
+        FakeResponses(
+            result=FakeResponse(
+                output_text="Half an ans",
+                usage=make_usage(),
+                incomplete_details=FakeIncompleteDetails(reason=reason),
+            )
+        )
+    )
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", max_output_tokens=8),
+    )
+
+    assert result.text == "Half an ans"
+    assert result.incomplete_reason == reason
+
+
+def test_complete_does_not_blame_the_provider_for_an_empty_truncated_answer() -> None:
+    """The budget went into reasoning tokens, so there is no text but also no outage."""
+    client = make_client(
+        FakeResponses(
+            result=FakeResponse(
+                output_text="",
+                usage=make_usage(),
+                incomplete_details=FakeIncompleteDetails(reason="max_output_tokens"),
+            )
+        )
+    )
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", max_output_tokens=8),
+    )
+
+    assert result.text == ""
+    assert result.incomplete_reason == "max_output_tokens"
+
+
+def test_complete_leaves_incomplete_reason_unset_for_a_full_answer() -> None:
+    client = make_client(
+        FakeResponses(result=FakeResponse(output_text="Hello.", usage=make_usage()))
+    )
+
+    result = client.complete(
+        system_prompt="You are helpful.",
+        user_message="Say hello.",
+        config=LlmConfig(model_name="test-model", temperature=0.2),
+    )
+
+    assert result.incomplete_reason is None
