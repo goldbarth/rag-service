@@ -42,9 +42,14 @@ What exists is the layer underneath it, the service skeleton and the raw LLM cal
 
 - A FastAPI service with `/health`, `/version` and `/analyze`
 - `OpenAiLlmClient` behind an `LlmClient` protocol, wired through FastAPI's `Depends`
-- Error classification split into `LlmConfigurationError` (500) and `LlmUnavailableError` (502), so the status code carries who has to act on it
+- Error classification split into `LlmConfigurationError` (500), `LlmUnavailableError` (502) and `LlmResponseFormatError` for a response that arrives but is unusable, so the failure carries who has to act on it
 - `LlmConfig` as a pydantic model, passed into the pipeline rather than read from a global
-- 32 tests, `mypy --strict` and `pyright --strict` clean
+- Token usage recorded per call, cached and reasoning tokens included, because they change the price and cannot be reconstructed afterwards.
+  `max_output_tokens` caps the expensive side, and a truncated answer is marked rather than returned as if it were whole.
+- Structured outputs through the Responses API with `strict`, validated against pydantic, with the judge as the first caller
+- 63 tests, `mypy --strict` and `pyright --strict` clean
+
+`strict` guarantees structure, never meaning. `scripts/schema_constraint_probe.py` measures where that line runs against the real API, and its docstring records the result with model, date and SDK version, because the answer belongs to a provider rather than to pydantic.
 
 Retrieval, the schema and the first diff are phase 3.
 The [roadmap](#roadmap) says what lands when.
@@ -64,7 +69,7 @@ Here they are written down, and the diff reads them later.
 
 ## Approach
 
-## What a run records
+### What a run records
 
 | Recorded                                                       | Why it is kept                                                                                          |
 |----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
@@ -72,16 +77,6 @@ Here they are written down, and the diff reads them later.
 | Every retrieved chunk, with score and rank                     | Shows which passage an answer was assembled from, and how close the ones below it came.                 |
 | The gold question, its expected answer and its expected source | The expected source is what makes a retrieval metric possible. Without it I can judge the answer alone. |
 | The computed scores                                            | The layer the diff is calculated on.                                                                    |
-
-Four things are allowed to vary between runs:
-
-- **Chunk size and overlap** - how the corpus is cut before it is embedded
-- **Embedding model** - which vector space the comparison happens in
-- **`top_k` and `ef_search`** - how many candidates come back, and how hard the index looks for them
-- **Prompt version** - the instruction the retrieved context is handed to
-
-The provider is one of these settings as well.
-The OpenAI client speaks to any OpenAI-compatible endpoint through a different `base_url`, so moving to Groq changes a value and leaves the layer alone.
 
 ### The configuration dimensions
 
