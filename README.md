@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/rrh-wordmark-dark.svg">
-  <img alt="rrh — retrieval regression harness" src="assets/rrh-wordmark-light.svg" width="380">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/rrh-wordmark-brackets-dark.svg">
+  <img alt="rrh — retrieval regression harness" src="assets/rrh-wordmark-brackets-light.svg" width="380">
 </picture>
 
 **A regression test for a system that gives different answers to the same question.**

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590 300" width="590" height="300" role="img" aria-label="retrieval-regression-harness"><style><![CDATA[@font-face{font-family:"IBM Plex Mono";font-weight:500;src:url(data:font/woff2;base64,) format("woff2");}]]></style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 300" width="710" height="300" role="img" aria-label="retrieval-regression-harness"><style><![CDATA[@font-face{font-family:"IBM Plex Mono";font-weight:500;src:url(data:font/woff2;base64,) format("woff2");}]]></style>
 <title>rrh — retrieval regression harness (dark)</title>
 <g>
 <rect x="48" y="88" width="127" height="10" rx="4" fill="#14807A"/>
@@ -12,6 +12,5 @@
 <rect x="48" y="189" width="115" height="10" rx="4" fill="#14807A"/>
 <rect x="48" y="202" width="113" height="10" rx="4" fill="#2DD4BF"/>
 </g>
-<text x="247" y="199" font-family="'IBM Plex Mono', ui-monospace, monospace" font-weight="500" font-size="141" letter-spacing="-3" fill="#FAF6F0">rrh</text>
-<circle cx="529" cy="186" r="13" fill="#E0A34B"/>
+<text x="247" y="199" font-family="'IBM Plex Mono', ui-monospace, monospace" font-weight="500" font-size="141" letter-spacing="-3" fill="#FAF6F0"><tspan fill="#E0A34B">[</tspan>rrh<tspan fill="#E0A34B">]</tspan></text>
 </svg>
