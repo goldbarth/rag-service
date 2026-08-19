@@ -40,16 +40,25 @@ The harness itself does not exist: no documents, no chunks, no embeddings, no da
 
 What exists is the layer underneath it, the service skeleton and the raw LLM calls the pipeline gets built into:
 
-- A FastAPI service with `/health`, `/version` and `/analyze`
-- `OpenAiLlmClient` behind an `LlmClient` protocol, wired through FastAPI's `Depends`
-- Error classification split into `LlmConfigurationError` (500), `LlmUnavailableError` (502) and `LlmResponseFormatError` for a response that arrives but is unusable, so the failure carries who has to act on it
+- A FastAPI service with `/health`, `/version`, `/analyze` and `/rag/analyze`
+- `OpenAiLlmClient` behind three role protocols, `TextCompleter`, `StructuredCompleter` and `ToolCompleter`, wired through FastAPI's `Depends`.
+  A caller depends on the single role it uses, so a method added for one of them cannot break a test double that never touches it.
+- Error classification split by who has to act on the failure.
+  `LlmConfigurationError` (500) and `LlmToolError` (500) are mine, a wrong model name and a tool handler that raised.
+  `LlmUnavailableError` (502) and `LlmResponseFormatError` (502) are the provider's, the second one for a response that arrives but cannot be used.
 - `LlmConfig` as a pydantic model, passed into the pipeline rather than read from a global
 - Token usage recorded per call, cached and reasoning tokens included, because they change the price and cannot be reconstructed afterwards.
   `max_output_tokens` caps the expensive side, and a truncated answer is marked rather than returned as if it were whole.
 - Structured outputs through the Responses API with `strict`, validated against pydantic, with the judge as the first caller
-- 63 tests, `mypy --strict` and `pyright --strict` clean
+- Tool calling built by hand once, the loop in the adapter and the tools provider-neutral in `core`.
+  A run that used up its rounds or was cut off returns the partial answer with the reason attached, because those tokens were spent either way and a truncated answer has to be distinguishable from a finished one.
+- 101 tests, `mypy --strict` and `pyright --strict` clean
 
 `strict` guarantees structure, never meaning. `scripts/schema_constraint_probe.py` measures where that line runs against the real API, and its docstring records the result with model, date and SDK version, because the answer belongs to a provider rather than to pydantic.
+
+The same gap sits between a prompt and what a model does with it.
+Every test around the tool path fakes the model, so they show that a system prompt is passed on and never that it is followed.
+`scripts/rag_smoke.py` asks the real one, against a corpus stating facts the model cannot know, so an answer from memory reads as visibly wrong rather than merely unsourced.
 
 Retrieval, the schema and the first diff are phase 3.
 The [roadmap](#roadmap) says what lands when.
