@@ -4,7 +4,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from harness.core.config import LlmConfig
-from harness.core.interfaces import LlmClient, TokenUsage
+from harness.core.interfaces import StructuredCompleter, TokenUsage
 from harness.core.prompts import JUDGE_SYSTEM_PROMPT
 
 
@@ -53,7 +53,7 @@ def judge_answer(
     question: str,
     expected_answer: str,
     actual_answer: str,
-    llm: LlmClient,
+    llm: StructuredCompleter,
     llm_config: LlmConfig,
 ) -> JudgeResult:
     """Judge one answer against the expected answer.
