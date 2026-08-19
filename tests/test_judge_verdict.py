@@ -6,7 +6,11 @@ from pydantic import BaseModel, ValidationError
 
 from harness.core.config import LlmConfig
 from harness.core.evaluation import JudgeVerdict, judge_answer
-from harness.core.interfaces import LlmCompletion, LlmStructuredCompletion, TokenUsage
+from harness.core.interfaces import (
+    LlmStructuredCompletion,
+    StructuredCompleter,
+    TokenUsage,
+)
 
 
 def test_judge_verdict_allows_correct_without_reasoning() -> None:
@@ -67,13 +71,6 @@ class RecordingJudgeLlmClient:
         self.verdict = verdict
         self.usage = usage
         self.calls: list[RecordedStructuredCall] = []
-
-    def complete(
-        self, system_prompt: str, user_message: str, config: LlmConfig
-    ) -> LlmCompletion:
-        raise NotImplementedError(
-            "This test double only supports structured completion."
-        )
 
     def complete_structured[T: BaseModel](
         self,
@@ -164,3 +161,14 @@ def test_judge_answer_reports_no_usage_when_the_provider_omits_it() -> None:
     )
 
     assert result.usage is None
+
+
+def test_the_double_satisfies_the_structured_role() -> None:
+    # Static check, not a runtime one: if StructuredCompleter grows a method,
+    # this assignment stops type-checking and the double gets fixed on purpose
+    # rather than by a failing judge test.
+    completer: StructuredCompleter = RecordingJudgeLlmClient(
+        JudgeVerdict(verdict="correct", reasoning="")
+    )
+
+    assert completer is not None

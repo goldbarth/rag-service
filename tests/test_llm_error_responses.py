@@ -8,6 +8,8 @@ from harness.core.config import LlmConfig
 from harness.core.interfaces import (
     LlmConfigurationError,
     LlmError,
+    LlmResponseFormatError,
+    LlmToolError,
     LlmUnavailableError,
 )
 from harness.main import app
@@ -67,3 +69,32 @@ def test_unavailable_error_answers_502(error_client: TestClient) -> None:
 
     assert response.status_code == 502
     assert response.json() == {"detail": "upstream model unavailable"}
+
+
+@pytest.mark.parametrize(
+    "error_client",
+    [lambda: LlmResponseFormatError("verdict did not satisfy the schema")],
+    indirect=True,
+)
+def test_response_format_error_answers_502(error_client: TestClient) -> None:
+    # The provider answered, it just answered with something unusable. That is
+    # still upstream's fault, so it sits with the other 502 rather than with
+    # the 500s we raise about ourselves.
+    response = error_client.post("/analyze", json={"text": "I love Donuts :)"})
+
+    assert response.status_code == 502
+    assert response.json() == {"detail": "upstream model answer was unusable"}
+
+
+@pytest.mark.parametrize(
+    "error_client",
+    [lambda: LlmToolError("tool 'search' failed in round 0")],
+    indirect=True,
+)
+def test_tool_error_answers_500(error_client: TestClient) -> None:
+    # Our handler broke, not the model, so this must not read as an upstream
+    # problem no matter which route it came through.
+    response = error_client.post("/analyze", json={"text": "I love Donuts :)"})
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "internal server error"}
