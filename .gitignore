@@ -17,3 +17,6 @@ wheels/
 
 # Claude Code
 .claude/
+
+# Internal docs
+PROGRESS.md
