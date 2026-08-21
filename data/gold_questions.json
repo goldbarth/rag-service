@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "id": "response-model-priority",
+      "question": "A path operation declares a return type annotation and a response_model at the same time. Which of the two does FastAPI use for the response?",
+      "expected_answer": "The response_model takes priority. FastAPI uses it to do the data validation, documentation, etc. for the response, while the return type annotation remains useful for the editor and tools like mypy.",
+      "expected_sources": [
+        {
+          "doc_id": "tutorial/response-model",
+          "section": "response-model-priority"
+        }
+      ],
+      "hardness": "term_collision",
+      "note": "The term response_model occurs across response-model, response-status-code and advanced/additional-responses. Only one short section answers the priority question."
+    },
+    {
+      "id": "parameterized-dependency",
+      "question": "How do I build a dependency whose behaviour is configured per path operation, for example a fixed string it compares against?",
+      "expected_answer": "Use a class with a __call__ method and declare the configuration as parameters of __init__. Create an instance with the values you want and pass that instance to Depends, so each path operation can depend on a differently parameterized instance.",
+      "expected_sources": [
+        { "doc_id": "advanced/advanced-dependencies", "section": "parameterize-the-instance" }
+      ],
+      "hardness": "near_duplicate",
+      "note": "tutorial/dependencies/classes-as-dependencies covers classes as dependencies in almost the same words, but instantiates the class per request instead of parameterizing one instance."
+    },
+    {
+      "id": "custom-response-documentation",
+      "question": "If I return a Response directly in FastAPI, how can I still document its media type in OpenAPI using response_class?",
+      "expected_answer": "Returning a Response directly means FastAPI sends it as-is and does not automatically validate, serialize, or document its data. To still document the media type with response_class, declare response_class in the path operation decorator and return your Response object directly. FastAPI uses response_class for OpenAPI documentation, while the returned Response is the one actually sent.",
+      "expected_sources": [
+        {
+          "doc_id": "advanced/response-directly",
+          "section": "notes"
+        },
+        {
+          "doc_id": "advanced/custom-response",
+          "section": "document-in-openapi-and-override-response"
+        }
+      ],
+      "hardness": "multi_section",
+      "note": "The first section states the negative rule: a directly returned Response is not automatically validated, serialized, or documented. The second section gives the response_class-specific workaround: declare response_class for OpenAPI documentation while returning a Response directly at runtime. The question names response_class to exclude the alternative additional-responses mechanism."
+    }
+  ]
+}
